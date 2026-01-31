@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学・幼児教育研究プラットフォーム</title>
+    <meta name="description" content="AIを活用した児童の学習分析・進捗追跡・教材推薦システム">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📚</div>
+                <h1>EduResearch</h1>
+                <span class="subtitle">小学・幼児教育研究</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    ダッシュボード
+                </a>
+                <a href="#" class="nav-item" data-section="students">
+                    <span class="nav-icon">👦</span>
+                    児童一覧
+                </a>
+                <a href="#" class="nav-item" data-section="analysis">
+                    <span class="nav-icon">📈</span>
+                    学習分析
+                </a>
+                <a href="#" class="nav-item" data-section="materials">
+                    <span class="nav-icon">📕</span>
+                    教材
+                </a>
+                <a href="#" class="nav-item" data-section="recommendations">
+                    <span class="nav-icon">💡</span>
+                    AI推薦
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="api-status" id="apiStatus">
+                    <span class="status-dot"></span>
+                    <span>API状態確認中...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ヘッダー -->
+            <header class="header">
+                <div class="header-title">
+                    <h2 id="pageTitle">ダッシュボード</h2>
+                    <p id="pageDescription">クラス全体の学習状況を確認できます</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="児童を検索...">
+                    </div>
+                    <button class="btn btn-primary" id="refreshBtn">
+                        🔄 更新
+                    </button>
+                </div>
+            </header>
+
+            <!-- ダッシュボードセクション -->
+            <section id="dashboard" class="section active">
+                <!-- 統計カード -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon students">👦</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalStudents">-</span>
+                            <span class="stat-label">登録児童数</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon records">📝</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalRecords">-</span>
+                            <span class="stat-label">学習記録数</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon average">📊</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="overallAverage">-</span>
+                            <span class="stat-label">平均スコア</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon materials">📚</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalMaterials">-</span>
+                            <span class="stat-label">教材数</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- チャートエリア -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>科目別平均スコア</h3>
+                        <div class="chart-container">
+                            <canvas id="subjectChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>年齢層別学習状況</h3>
+                        <div class="chart-container">
+                            <canvas id="ageGroupChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近の活動 -->
+                <div class="activity-card">
+                    <h3>📅 最近の学習活動</h3>
+                    <div class="activity-list" id="recentActivity">
+                        <div class="loading">読み込み中...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 児童一覧セクション -->
+            <section id="students" class="section">
+                <div class="students-grid" id="studentsGrid">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </section>
+
+            <!-- 学習分析セクション -->
+            <section id="analysis" class="section">
+                <div class="analysis-container">
+                    <div class="student-selector">
+                        <label>児童を選択：</label>
+                        <select id="analysisStudentSelect">
+                            <option value="">-- 選択してください --</option>
+                        </select>
+                    </div>
+                    <div class="analysis-content" id="analysisContent">
+                        <div class="placeholder-message">
+                            <span class="placeholder-icon">📈</span>
+                            <p>児童を選択すると、学習分析結果が表示されます</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 教材セクション -->
+            <section id="materials" class="section">
+                <div class="materials-filter">
+                    <label>年齢層でフィルター：</label>
+                    <select id="materialsAgeFilter">
+                        <option value="">すべて</option>
+                        <option value="幼児">幼児</option>
+                        <option value="低学年">低学年</option>
+                        <option value="高学年">高学年</option>
+                    </select>
+                </div>
+                <div class="materials-grid" id="materialsGrid">
+                    <div class="loading">読み込み中...</div>
+                </div>
+            </section>
+
+            <!-- AI推薦セクション -->
+            <section id="recommendations" class="section">
+                <div class="recommendations-container">
+                    <div class="student-selector">
+                        <label>児童を選択：</label>
+                        <select id="recommendationStudentSelect">
+                            <option value="">-- 選択してください --</option>
+                        </select>
+                    </div>
+                    <div class="recommendations-content" id="recommendationsContent">
+                        <div class="placeholder-message">
+                            <span class="placeholder-icon">💡</span>
+                            <p>児童を選択すると、AIによる教材推薦が表示されます</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="charts.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
